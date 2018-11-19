@@ -1,0 +1,4 @@
+- hosts: "{{ jira_server }}"
+  roles:
+    - jira_updrade
+

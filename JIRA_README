@@ -1,0 +1,1 @@
+ansible-playbook jira_upgrade.yml --extra-vars="upgrade_version=7.12.2 jira_server=localhost" -vvvv
