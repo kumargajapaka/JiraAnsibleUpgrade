@@ -1,0 +1,39 @@
+- name: remove previous directory if any
+  file:
+    path: /tmp/atlassian
+    state: absent
+
+- name: bxckup existing directory
+  command: cp -r /opt/atlassian /tmp/atlassian
+
+- name: Download Jira upgrade file
+  get_url:
+     url: https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-software-{{ upgrade_version }}-x64.bin
+     dest: /opt/atlassian/
+     mode: 0755
+
+- name: copy responsefile  to tmp
+  copy:
+    src: responsefile 
+    dest: /tmp/response.varfile
+
+- name: execute upgrade file
+  shell: ./atlassian-jira-software-{{ upgrade_version }}-x64.bin -q -varfile /tmp/response.varfile
+  args:
+    chdir: /opt/atlassian/
+
+- name: copy existing files to new directory
+  copy:
+    src: "{{ item.oldFile }}"
+    dest: "{{ item.newFile }}"
+    #owner: root
+    #group: root
+    #mode: 0644
+    remote_src: yes
+  with_items:
+    - { oldFile: '/tmp/atlassian/jira/bin/setenv.sh', newFile: '/opt/atlassian/jira/bin/setenv.sh' }
+    - { oldFile: '/tmp/atlassian/jira/conf/server.xml', newFile: '/opt/atlassian/jira/conf/server.xml' }
+    - { oldFile: '/tmp/atlassian/jira/jre/lib/security/cacerts', newFile: '/opt/atlassian/jira/jre/lib/security/cacerts' }
+ 
+# - name: restart jira
+# command: /opt/atlassian/jira/bin/start-jira.sh
